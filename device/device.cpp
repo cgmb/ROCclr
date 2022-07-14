@@ -199,10 +199,21 @@ std::string Isa::isaName() const {
   return std::string(hsaIsaNamePrefix) + targetId();
 }
 
+static bool isProcessorCompatible(const Isa &codeObjectIsa, const Isa &agentIsa) {
+  if (codeObjectIsa.versionMajor() == agentIsa.versionMajor() ||
+      codeObjectIsa.versionMinor() == agentIsa.versionMinor() ||
+      codeObjectIsa.versionStepping() == agentIsa.versionStepping())
+    return true;
+
+  if (codeObjectIsa.versionMajor() == 10 && agentIsa.versionMajor() == 10 &&
+      codeObjectIsa.versionMinor() == 3 && agentIsa.versionMinor() == 3)
+    return true;
+
+  return false;
+}
+
 bool Isa::isCompatible(const Isa &codeObjectIsa, const Isa &agentIsa) {
-  if (codeObjectIsa.versionMajor() != agentIsa.versionMajor() ||
-      codeObjectIsa.versionMinor() != agentIsa.versionMinor() ||
-      codeObjectIsa.versionStepping() != agentIsa.versionStepping())
+  if (!isProcessorCompatible(codeObjectIsa, agentIsa))
     return false;
 
   assert(codeObjectIsa.isSrameccSupported() == agentIsa.isSrameccSupported() &&
